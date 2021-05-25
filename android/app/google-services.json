@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "960541083659",
+    "project_id": "poolins",
+    "storage_bucket": "poolins.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960541083659:android:fe9583399dec78bac29f0e",
+        "android_client_info": {
+          "package_name": "com.isvisoft.testformulario"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "960541083659-rvpjfc4j7iqml48rm7cnq54vovtlchf0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmr2yPMKkN08mBSEUo4nW4kxFVbfmA_lY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "960541083659-rvpjfc4j7iqml48rm7cnq54vovtlchf0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
