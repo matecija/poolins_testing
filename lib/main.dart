@@ -71,12 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController postalCodeController= TextEditingController();
   TextEditingController provinceController= TextEditingController();
 
-
   bool isScrollable = true;
-
-  ValueNotifier<bool> physicsValue ;
-
-  //ValueNotifier<bool> isScrollable = ValueNotifier<bool>(true);
 
   final FirestoreService _firestore = FirestoreService();
 
@@ -92,12 +87,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int currentStep = 0;
   bool complete = false;
-
+/*
   next() {
     currentStep + 1 != 9
         ? goTo(currentStep + 1)
         : setState(() => complete = true);
   }
+*/
+  next() {
+    if(currentStep+1 != 9){
+      setState(() {
+        if (_formKeys[currentStep].currentState.validate()) {
+          currentStep++;
+        }
+      });
+    }
+  }
+
 
   cancel() {
     if (currentStep > 0) {
@@ -110,239 +116,252 @@ class _MyHomePageState extends State<MyHomePage> {
       currentStep = step;
       if(currentStep == 1){
         isScrollable =false;
+        scrollController.jumpTo(0.0);
+
       }else{
         isScrollable =true;
       }
     });
   }
 
-  var fieldContainerKey;
+  List<GlobalKey<FormState>> _formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>(),GlobalKey<FormState>(),GlobalKey<FormState>(),GlobalKey<FormState>(),GlobalKey<FormState>(),GlobalKey<FormState>(),GlobalKey<FormState>(),];
+  final GlobalKey fieldContainerKey = GlobalKey();
+  final ScrollController scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    physicsValue = ValueNotifier(true);
     return Scaffold(
-
-      body: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.95,
-            width: MediaQuery.of(context).size.width,
-            child:Form(
-              key: _formKey,
-              child:Stepper(
-                type: StepperType.vertical,
+      body : SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
+        child:  Column(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height * 0.95,
+              width: MediaQuery.of(context).size.width,
+              child: SingleChildScrollView(
+                controller: scrollController,
                 physics: isScrollable
                     ? const AlwaysScrollableScrollPhysics()
                     : const NeverScrollableScrollPhysics(),
+                child: Stepper(
+                  type: StepperType.vertical,
+                  physics: const NeverScrollableScrollPhysics(),
 
-                onStepTapped: (step) => goTo(step),
-                currentStep: currentStep,
+                  onStepTapped: (step) => goTo(step),
+                  currentStep: currentStep,
 
-                //If null, the button will appear as disabled.
-                onStepContinue: currentStep == 9 ? null : next,
-                onStepCancel: currentStep == 0 ? null : cancel,
-                steps: [
-                  PedidoStep(context, dateController,nameController,streetController,postalCodeController,provinceController,
-                      billsUpdateNameCallback,billsUpdateDateCallback,billsUpdatePostalCodeCallback,
-                  billsUpdateProvinceCallback, billsUpdateStreetCallback),
+                  //If null, the button will appear as disabled.
+                  onStepContinue: currentStep == 9 ? null : next,
+                  onStepCancel: currentStep == 0 ? null : cancel,
+                  steps: [
 
-                  Step(
-                    title: Text("Croquis"),
-                    isActive: true,
-                    state: StepState.editing,
-                    content:
-                    StatefulBuilder(
-                      builder: (context, setState) {
-                        return Container(
-                          //  height: MediaQuery.of(context).size.height * 0.4,
-                          //: MediaQuery.of(context).size.width * 0.9,
-                            margin: EdgeInsets.all(5),
+                    PedidoStep(context, _formKeys[0] ,dateController,nameController,streetController,postalCodeController,provinceController,
+                        billsUpdateNameCallback,billsUpdateDateCallback,billsUpdatePostalCodeCallback,
+                        billsUpdateProvinceCallback, billsUpdateStreetCallback),
 
-                            child: Column(
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(bottom: 20, top: 20, right: 10),
-                                  child: Text(
-                                    "Croquis",
-                                    style: TextStyle(fontSize: 20),
+
+                    Step(
+                      title: Text("Croquis"),
+                      isActive: true,
+                      state: StepState.editing,
+                      content:StatefulBuilder(
+                        builder: (context, setState) {
+                          return Container(
+                            //  height: MediaQuery.of(context).size.height * 0.4,
+                            //: MediaQuery.of(context).size.width * 0.9,
+                              margin: EdgeInsets.all(5),
+
+                              child: Column(
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.only(bottom: 20, top: 20, right: 10),
+                                    child: Text(
+                                      "Croquis",
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    width: MediaQuery.of(context).size.width,
+                                    color: Colors.blueAccent.withOpacity(0.4),
                                   ),
-                                  width: MediaQuery.of(context).size.width,
-                                  color: Colors.blueAccent.withOpacity(0.4),
-                                ),
-                                Stack(
-                                  overflow: Overflow.visible,
-                                  children: [
+                                  Stack(
+                                    overflow: Overflow.visible,
+                                    children: [
 
-                                    Container(
-                                      height: MediaQuery.of(context).size.height * 0.3,
-                                      width: MediaQuery.of(context).size.width * 0.73,
-                                      key: fieldContainerKey,
-                                    ),
-                                    Container(
-                                      alignment: Alignment.centerRight,
-                                      margin: EdgeInsets.only(top: 80,right: 20),
-                                      child: Container(
-                                        width: 200,
-                                        height: 130,
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: Colors.black,
-                                              width: 2,
-                                            )),
+                                      Container(
+                                        height: MediaQuery.of(context).size.height * 0.3,
+                                        width: MediaQuery.of(context).size.width * 0.73,
+                                        key: fieldContainerKey,
                                       ),
-                                    ),
-                                    Positioned(
-                                      left: o_cruz.dx,
-                                      top: o_cruz.dy,
-                                      child: GestureDetector(
+                                      Container(
+                                        alignment: Alignment.centerRight,
+                                        margin: EdgeInsets.only(top: 80,right: 20),
                                         child: Container(
-                                          width: 70,
-                                          height: 70,
-                                          child: Icon(
-                                            Icons.clear,
-                                            color: Colors.red,
-                                            size: 50,
-                                          ),
+                                          width: 200,
+                                          height: 130,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: Colors.black,
+                                                width: 2,
+                                              )),
                                         ),
-                                        onPanUpdate: (details) {
-                                          if(checkArea(fieldContainerKey.currentContext, o_cruz)){
-                                            setState(() {
-                                              o_cruz = Offset(o_cruz.dx + details.delta.dx,
-                                                  o_cruz.dy + details.delta.dy);
-                                            });
-                                          }else{
-                                            o_cruz = Offset(10, 80);
-                                          }
-                                        },
                                       ),
-                                    ),
-
-                                    Positioned(
-                                      left: o_line.dx,
-                                      top: o_line.dy,
-                                      child: GestureDetector(
-                                        child: Container(
-                                          width: 70,
-                                          height: 70,
-                                          child: Icon(
-                                            Icons.remove,
-                                            color: Colors.red,
-                                            size: 60,
+                                      Positioned(
+                                        left: o_cruz.dx,
+                                        top: o_cruz.dy,
+                                        child: GestureDetector(
+                                          child: Container(
+                                            width: 70,
+                                            height: 70,
+                                            child: Icon(
+                                              Icons.clear,
+                                              color: Colors.red,
+                                              size: 50,
+                                            ),
                                           ),
+                                          onPanUpdate: (details) {
+                                            if(checkArea(fieldContainerKey.currentContext, o_cruz)){
+                                              setState(() {
+                                                o_cruz = Offset(o_cruz.dx + details.delta.dx,
+                                                    o_cruz.dy + details.delta.dy);
+                                              });
+                                            }else{
+                                              o_cruz = Offset(10, 80);
+                                            }
+                                          },
                                         ),
-                                        onPanUpdate: (details) {
-                                          if(checkArea(fieldContainerKey.currentContext, o_line)){
-                                            setState(() {
-                                              o_line = Offset(o_line.dx + details.delta.dx,
-                                                  o_line.dy + details.delta.dy);
-                                            });
-                                          }else{
-                                            o_line = Offset(10, 20);
-                                          }
-                                        },
-
                                       ),
-                                    ),
 
-                                    Positioned(
-                                      left: o_rectangulo.dx,
-                                      top: o_rectangulo.dy,
-                                      child: GestureDetector(
-                                        child: Container(
-                                          width: 70,
-                                          height: 70,
-                                          child: Icon(
-                                            Icons.stay_current_landscape_sharp,
-                                            color: Colors.red,
-                                            size: 40,
+                                      Positioned(
+                                        left: o_line.dx,
+                                        top: o_line.dy,
+                                        child: GestureDetector(
+                                          child: Container(
+                                            width: 70,
+                                            height: 70,
+                                            child: Icon(
+                                              Icons.remove,
+                                              color: Colors.red,
+                                              size: 60,
+                                            ),
                                           ),
-                                        ),
-                                        onPanUpdate: (details) {
-                                          if(checkArea(fieldContainerKey.currentContext, o_rectangulo)){
-                                            setState(() {
-                                              o_rectangulo = Offset(o_rectangulo.dx + details.delta.dx,
-                                                  o_rectangulo.dy + details.delta.dy);
-                                            });
-                                          }else{
-                                            o_rectangulo = Offset(10, 40);
-                                          }
-                                        },
-
-                                      ),
-                                    ),
-                                    Positioned(
-                                      left: o_circulo.dx,
-                                      top: o_circulo.dy,
-                                      child: GestureDetector(
-                                        child: Container(
-                                          width: 60,
-                                          height: 60,
-                                          child: Image.asset("img/circle.png",
-                                            color: Colors.red,
-                                          ),
+                                          onPanUpdate: (details) {
+                                            if(checkArea(fieldContainerKey.currentContext, o_line)){
+                                              setState(() {
+                                                o_line = Offset(o_line.dx + details.delta.dx,
+                                                    o_line.dy + details.delta.dy);
+                                              });
+                                            }else{
+                                              o_line = Offset(10, 20);
+                                            }
+                                          },
 
                                         ),
-                                        onPanUpdate: (details) {
-                                          if(checkArea(fieldContainerKey.currentContext, o_circulo)){
-                                            setState(() {
-                                              o_circulo = Offset(o_circulo.dx + details.delta.dx,
-                                                  o_circulo.dy + details.delta.dy);
-                                            });
-                                          }else{
-                                            o_circulo = Offset(10, 100);
-                                          }
-                                        },
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ));
-                      },
+
+                                      Positioned(
+                                        left: o_rectangulo.dx,
+                                        top: o_rectangulo.dy,
+                                        child: GestureDetector(
+                                          child: Container(
+                                            width: 70,
+                                            height: 70,
+                                            child: Icon(
+                                              Icons.stay_current_landscape_sharp,
+                                              color: Colors.red,
+                                              size: 40,
+                                            ),
+                                          ),
+                                          onPanUpdate: (details) {
+                                            if(checkArea(fieldContainerKey.currentContext, o_rectangulo)){
+                                              setState(() {
+                                                o_rectangulo = Offset(o_rectangulo.dx + details.delta.dx,
+                                                    o_rectangulo.dy + details.delta.dy);
+                                              });
+                                            }else{
+                                              o_rectangulo = Offset(10, 40);
+                                            }
+                                          },
+
+                                        ),
+                                      ),
+                                      Positioned(
+                                        left: o_circulo.dx,
+                                        top: o_circulo.dy,
+                                        child: GestureDetector(
+                                          child: Container(
+                                            width: 60,
+                                            height: 60,
+                                            child: Image.asset("img/circle.png",
+                                              color: Colors.red,
+                                            ),
+
+                                          ),
+                                          onPanUpdate: (details) {
+                                            if(checkArea(fieldContainerKey.currentContext, o_circulo)){
+                                              setState(() {
+                                                o_circulo = Offset(o_circulo.dx + details.delta.dx,
+                                                    o_circulo.dy + details.delta.dy);
+                                              });
+                                            }else{
+                                              o_circulo = Offset(10, 100);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ));
+                        },
+                      ),
+
                     ),
 
+                    TipoStep(context,_formKeys[1],overflowingValue,skimmerValue,
+                        tipoUpdateOverflowingCallback,tipoUpdateSkimmerCallback),
 
-                  ),
+                    ColoresStep(context,_formKeys[2],coloresValue,coloresUpdateColorCallback),
 
-                  TipoStep(context,overflowingValue,skimmerValue,
-                      tipoUpdateOverflowingCallback,tipoUpdateSkimmerCallback),
+                    SizeStep(context,_formKeys[3],poolSizeValue,sizeUpdateSizeCallback),
 
-                  ColoresStep(context,coloresValue,coloresUpdateColorCallback),
+                    StairsStep(context,_formKeys[4],stairsValue,stairsUpdateStairsCallback),
 
-                  SizeStep(context,poolSizeValue,sizeUpdateSizeCallback),
+                    PreStep(context,_formKeys[5],preInstValue,preUpdatePreInstCallback),
 
-                  StairsStep(context,stairsValue,stairsUpdateStairsCallback),
+                    CoverStep(context,_formKeys[6],cover1Value,cover2Value,
+                        coverUpdateCover1Callback,coverUpdateCover2Callback),
 
-                  PreStep(context,preInstValue,preUpdatePreInstCallback),
-
-                  CoverStep(context,cover1Value,cover2Value,
-                      coverUpdateCover1Callback,coverUpdateCover2Callback),
-
-                  ObservationStep(context,observationController),
-                ],
+                    ObservationStep(context,_formKeys[7],observationController),
+                  ],
+                ),
               ),
+
+
+
+
             ),
-          ),
 
-          Container(
-            height: MediaQuery.of(context).size.height * 0.05,
-            width: MediaQuery.of(context).size.width,
-            child:FlatButton(
-              minWidth: MediaQuery.of(context).size.width,
-              color: Colors.green,
-              child: Text("Submit"),
-              onPressed: () {
-                if(_formKey.currentState.validate() && (
-                coloresValue != null && preInstValue != null &&
-                    stairsValue != null && cover1Value != null &&
-                    cover2Value != null && poolSizeValue != null &&
-                    overflowingValue != null && skimmerValue != null
-                )){
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Success')));
+            Container(
+              height: MediaQuery.of(context).size.height * 0.05,
+              width: MediaQuery.of(context).size.width,
+              child:FlatButton(
+                  minWidth: MediaQuery.of(context).size.width,
+                  color: Colors.green,
+                  child: Text("Submit"),
+                  onPressed: () {
 
+                    _formKeys.forEach((element) {
+                      if(element.currentState.validate() == null)
+                        return false;
+
+                    });
+
+                    if(coloresValue != null && preInstValue != null &&
+                        stairsValue != null && cover1Value != null &&
+                        cover2Value != null && poolSizeValue != null &&
+                        overflowingValue != null && skimmerValue != null){
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('Success')));
                       _firestore.saveBills(
-                          name: nameController.text,
+                        name: nameController.text,
                         colors: coloresValue.index,
                         overflowing: overflowingValue.index,
                         preInstalation: preInstValue.index,
@@ -357,14 +376,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         province: provinceController.text,
                         street: streetController.text,
                       );
-                }else{
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Errors in form')));
-                }
-              }
-            ),
-          )
-        ],
+                    }else{
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('Errors in form')));
+                    }
+                  }
+              ),
+            )
+          ],
+        ),
       )
 
     );

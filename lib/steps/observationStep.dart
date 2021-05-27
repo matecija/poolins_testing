@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 class ObservationStep extends Step {
 
   ObservationStep(BuildContext context,
+      GlobalKey<FormState> formKey,
+
       TextEditingController observationController
 
       ):super(
     title: Text("Observaciones"),
     state: StepState.editing,
     isActive: true,
-    content: Container(
+    content: Form(
+      key: formKey,
+      child: Container(
       child: Column(
         children: [
           Container(
@@ -37,6 +41,9 @@ class ObservationStep extends Step {
         ],
       ),
     ),
+    )
+
+
   );
 
 }
